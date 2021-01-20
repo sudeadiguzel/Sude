@@ -33,6 +33,7 @@ namespace WebApplication1
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                
             }
             else
             {
@@ -41,7 +42,7 @@ namespace WebApplication1
                 app.UseHsts();
             }
 
-            
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
@@ -51,7 +52,7 @@ namespace WebApplication1
 
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllerRoute(name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Product}/{action=List}/{id?}");
 
             });
             

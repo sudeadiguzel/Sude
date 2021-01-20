@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
+    <Compile Remove="Controllers\ProductViewModels.cs" />
   </ItemGroup>
 
 </Project>

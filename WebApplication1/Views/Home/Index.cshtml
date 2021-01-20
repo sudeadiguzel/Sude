@@ -4,9 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
 </head>
 <body>
+    @await Html.PartialAsync("_navbar")
+    @await Html.PartialAsync("_header")
+
     <h1>Home/Contact</h1>
     <p>@ViewBag.Greeting @ViewBag.UserName</p>
+
+    <a href="/product/list"> 1 Go to List!</a>
+
+    <a href="@Url.Action("List", "Product")"> 2 Go to List!</a>
 </body>
 </html>
