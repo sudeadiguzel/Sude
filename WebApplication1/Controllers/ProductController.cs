@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Data.Abstract;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebApplication1.Data;
 using WebApplication1.Models;
 using WebApplication1.ViewModels;
 
@@ -10,59 +13,61 @@ namespace WebApplication1.Controllers
 {
     public class ProductController : Controller
     {
-        public IActionResult Index()
+        private readonly IProductRepository _productRepository; 
+
+        public ProductController(IProductRepository productRepository)
         {
-            return View();
+             _productRepository = productRepository;
         }
-        public IActionResult List()
+        public async Task<IActionResult> List(int? id,string q)
         {
-
-            var category1 = new Category { Name = "Phone", Description = "In Sale" };
-            var category2 = new Category { Name = "Phone", Description = "In Sale" };
-
-            var products = new List<Product>()
+            var products = await _productRepository.GetAll();
+            
+            if (id != null)
             {
-                new Product { Name = "Iphone 8", Price = 3000, Description = "Iphone", Category = category1 },
-                new Product { Name = "Iphone 11", Price = 8000, Description = "New Iphone", Category = category2 }
-            };
-
-
-            var productViewModels = new List<ProductViewModel>();
-
-            foreach(var product in products)
-            {
-                var productViewModel = ProductToProductViewModel(product);
-                productViewModels.Add(productViewModel);
+                products = products.Where(p => p.CategoryId == id).ToList();
             }
-        
-
-            return View(productViewModels);
-        }
-        public IActionResult Details()
-        {
-            ////ViewBag.Name = "Samsung s6";
-            ////ViewBag.Price = "600";
-            ////ViewBag.Description = "Android phone";
-
-            //var p = new Product();
-            //p.SetName("Samsung S6");
-            //p.SetPrice(600);
-            //p.SetDescription("Android Phone");
-
-            return View();
-        }
-
-        #region Mapper Methods
-        private ProductViewModel ProductToProductViewModel(Product product)
-        {
-            return new ProductViewModel
+            if (!string.IsNullOrEmpty(q))
             {
-                Name = product.Name,
-                Price = product.Price,
-                Description = product.Description,
-                CategoryName = product.Category.Name
+                products = products.Where(i => i.Name.ToLower().Contains(q.ToLower()) || i.Description.Contains(q.ToLower())).ToList();
+            }
+            var productViewModel = new ProductViewModel()
+            {
+                Products = products
             };
+
+            return View(productViewModel);
         }
-        #endregion
+        public async Task<IActionResult> Details(int id)
+        {
+            var product = await _productRepository.GetById(id);
+            return View(product);
+        }
+        public IActionResult Create()
+        {
+            ViewBag.Categories = new SelectList(CategoryRepository.Categories, "CategoryId", "Name");
+            return View(new Product());
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create(Product product)    
+        {
+            if (ModelState.IsValid)
+            {
+                await _productRepository.Create(product); //sıkıntı çıkarsa int değere ata
+               
+                return RedirectToAction("List"); //go to List method
+            }
+            ViewBag.Categories = new SelectList(CategoryRepository.Categories, "CategoryId", "Name");
+            return View(product);
+        }
+        
+        //private ProductViewModel ProductToProductViewModel(Product product)
+        //{
+        //    var productModel=new ProductViewModel();
+        //    productModel.Products.Add(product);
+        //    return productModel;
+        //}
+        //#endregion
     }
 }
